@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Walkway Graph</title>
   <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(to right, #aa94d4, #c2ebd3, #f9f8cc);
@@ -14,29 +17,38 @@
       text-align: center;
     }
 
-    h1 {
-      margin-bottom: 30px;
+    h1, h2 {
+      margin-bottom: 20px;
       color: #4a4a4a;
     }
 
-    label, select, button {
+    label, select, button, input {
       font-size: 1rem;
-      margin: 10px;
+      margin: 8px;
     }
 
-    select, button {
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      background-color: #c2ebd3;
-      color: #333;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
+select, button, input {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(to left, #aa94d4, #c2ebd3, #f9f8cc); /* Reversed gradient */
+  color: #333;
+  font-weight: bold;
+  cursor: pointer;
+  transition: filter 0.3s ease;
+}
 
-    button:hover {
-      background-color: #a3dbbb;
+button:hover {
+  filter: brightness(1.1); /* Slight glow effect */
+}
+
+
+
+    .section {
+      padding: 40px 20px;
+      background-color: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      margin-bottom: 40px;
     }
 
     #output {
@@ -63,42 +75,82 @@
       background-color: #c2ebd3;
       border-left-color: #2575fc;
     }
+
+    .connection-row {
+      margin: 10px 0;
+    }
   </style>
 </head>
-
 <body>
-  <h1>I can show you the path 😊</h1>
 
-  <label for="start">Your Position :</label>
-  <select id="start"></select>
-  <label for="end">Target Position:</label>
-  <select id="end"></select>
-  <button onclick="findPaths()">Find Paths</button>
+  <h1>🗺️ Walkway Path Finder</h1>
 
-  <div id="output"></div>
+  <!-- 🔘 Navigation Buttons -->
+  <div class="nav-buttons">
+    <button onclick="document.getElementById('section-locations').scrollIntoView()">📍 View Locations</button>
+    <button onclick="document.getElementById('section-findpath').scrollIntoView()">🧭 Find Path</button>
+    <button onclick="document.getElementById('section-addlocation').scrollIntoView()">➕ Add Location</button>
+  </div>
+
+  <!-- 📍 Available Locations -->
+  <div id="section-locations" class="section">
+    <h2>📍 Available Locations</h2>
+    <ul id="locationList" style="list-style: none; padding: 0;"></ul>
+  </div>
+
+  <!-- 🧭 Pathfinding Section -->
+  <div id="section-findpath" class="section">
+    <h2>🧭 Find Your Path</h2>
+    <label for="start">Your Position :</label>
+    <select id="start"></select>
+    <label for="end">Target Position:</label>
+    <select id="end"></select>
+    <button onclick="findPaths()">Find Paths</button>
+
+    <div id="output"></div>
+  </div>
+
+  <!-- ➕ Add Location Section -->
+  <div id="section-addlocation" class="section">
+    <h2>➕ Add New Location</h2>
+    <input type="text" id="newLocationName" placeholder="New Location Name">
+    <div id="newConnections"></div>
+    <button onclick="addNewLocation()">Add Location</button>
+  </div>
 
   <script>
-    const places = ["Mirpur 14", "Mirpur 10", "Banani", "ECB", "Jamuna", "Gulshan", "Mohakhali", "Hatirjheel", "NotunBazar", "BRAC university"];
+    let places = [
+      "Mirpur 14", "Mirpur 10", "Banani", "ECB", "Jamuna", "Gulshan",
+      "Mohakhali", "Hatirjheel", "NotunBazar", "BRAC university", "Mirpur 12"
+    ];
 
-    const graph = [
-      [{ dest: 1, time: 7, bus: 10, rik: 30 }, { dest: 2, time: 15, bus: 10, rik: 80 }, { dest: 3, time: 7, bus: 0, rik: 60 }],
-      [{ dest: 0, time: 7, bus: 10, rik: 30 }, { dest: 7, time: 15, bus: 30, rik: 0 }],
+    let graph = [
+      [{ dest: 1, time: 7, bus: 10, rik: 30 }, { dest: 2, time: 15, bus: 10, rik: 80 },{ dest: 10, time: 25, bus: 0, rik: 80 }, { dest: 3, time: 7, bus: 0, rik: 60 }],
+      [{ dest: 0, time: 7, bus: 10, rik: 30 },{ dest: 10, time: 7, bus: 10, rik: 30 }, { dest: 7, time: 15, bus: 30, rik: 0 }],
       [{ dest: 0, time: 15, bus: 10, rik: 80 }, { dest: 5, time: 15, bus: 10, rik: 0 }, { dest: 6, time: 10, bus: 10, rik: 0 }],
-      [{ dest: 0, time: 7, bus: 0, rik: 60 }, { dest: 4, time: 20, bus: 10, rik: 0 }],
+      [{ dest: 0, time: 7, bus: 0, rik: 60 },{ dest: 10, time: 15, bus: 15, rik: 70 }, { dest: 4, time: 20, bus: 10, rik: 0 }],
       [{ dest: 3, time: 20, bus: 10, rik: 0 }, { dest: 8, time: 20, bus: 10, rik: 0 }],
       [{ dest: 2, time: 15, bus: 10, rik: 0 }, { dest: 8, time: 10, bus: 10, rik: 0 }],
       [{ dest: 2, time: 10, bus: 10, rik: 0 }, { dest: 7, time: 10, bus: 0, rik: 30 }],
       [{ dest: 1, time: 15, bus: 30, rik: 0 }, { dest: 6, time: 10, bus: 0, rik: 30 }, { dest: 9, time: 10, bus: 0, rik: 30 }],
       [{ dest: 4, time: 20, bus: 10, rik: 0 }, { dest: 5, time: 10, bus: 10, rik: 0 }, { dest: 9, time: 20, bus: 10, rik: 60 }],
-      [{ dest: 7, time: 10, bus: 0, rik: 30 }, { dest: 8, time: 20, bus: 10, rik: 60 }]
+      [{ dest: 7, time: 10, bus: 0, rik: 30 }, { dest: 8, time: 20, bus: 10, rik: 60 }],
+      [ { dest: 0, time: 25, bus: 0, rik: 80 },{ dest: 1, time: 15, bus: 10, rik: 30 },{ dest: 3, time: 15, bus: 15, rik: 70 }]
     ];
 
     function populateDropdowns() {
       const start = document.getElementById("start");
       const end = document.getElementById("end");
+      const list = document.getElementById("locationList");
+
+      start.innerHTML = "";
+      end.innerHTML = "";
+      list.innerHTML = "";
+
       places.forEach((place, idx) => {
         start.innerHTML += `<option value="${idx}">${place}</option>`;
         end.innerHTML += `<option value="${idx}">${place}</option>`;
+        list.innerHTML += `<li>📍 ${place}</li>`;
       });
     }
 
@@ -139,10 +191,9 @@
         return;
       }
 
-      // Find shortest time path
       const shortestTimePath = allPaths.reduce((min, p) => (p.time < min.time ? p : min), allPaths[0]);
-
       const shortestPathNames = shortestTimePath.path.map(i => places[i]).join(" ➔ ");
+
       output.innerHTML += `
         <div class="path-result shortest-time">
           <strong>🚀 Shortest Time Path:</strong><br>
@@ -152,7 +203,6 @@
           ⏱️ Total Time: <strong>${shortestTimePath.time} mins</strong>
         </div>`;
 
-      // Display all paths
       allPaths.forEach((p, i) => {
         const pathNames = p.path.map(idx => places[idx]).join(" ➔ ");
         output.innerHTML += `
@@ -165,8 +215,52 @@
       });
     }
 
+    function createNewConnectionInputs() {
+      const container = document.getElementById("newConnections");
+      container.innerHTML = "";
+      places.forEach((place, index) => {
+        const row = document.createElement("div");
+        row.className = "connection-row";
+        row.innerHTML = `
+          <label><strong>${place}</strong>:</label>
+          Time: <input type="number" id="time_${index}" style="width:60px;">
+          Bus: <input type="number" id="bus_${index}" style="width:60px;">
+          Rik: <input type="number" id="rik_${index}" style="width:60px;"><br>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function addNewLocation() {
+      const name = document.getElementById("newLocationName").value.trim();
+      if (!name) {
+        alert("Please enter a location name.");
+        return;
+      }
+
+      const newIndex = places.length;
+      places.push(name);
+      graph.push([]);
+
+      for (let i = 0; i < newIndex; i++) {
+        const time = parseInt(document.getElementById(`time_${i}`).value);
+        const bus = parseInt(document.getElementById(`bus_${i}`).value);
+        const rik = parseInt(document.getElementById(`rik_${i}`).value);
+
+        if (!isNaN(time) && !isNaN(bus) && !isNaN(rik)) {
+          graph[newIndex].push({ dest: i, time, bus, rik });
+          graph[i].push({ dest: newIndex, time, bus, rik });
+        }
+      }
+
+      alert(`✅ '${name}' added!`);
+      document.getElementById("newLocationName").value = "";
+      populateDropdowns();
+      createNewConnectionInputs();
+    }
+
     populateDropdowns();
+    createNewConnectionInputs();
   </script>
 </body>
-
 </html>
