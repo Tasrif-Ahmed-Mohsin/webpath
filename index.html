@@ -11,15 +11,77 @@
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #aa94d4, #c2ebd3, #f9f8cc);
-      color: #333;
+      background: linear-gradient(to right, #e4daf3, #d3f2e1, #fcfbe0);
+      color: #2d3436;
       padding: 20px;
-      text-align: center;
+      margin: 0;
     }
 
     h1, h2 {
+      color: #333;
       margin-bottom: 20px;
-      color: #4a4a4a;
+      text-align: center;
+    }
+
+    .nav-buttons {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .nav-buttons button {
+      padding: 12px 20px;
+      margin: 8px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(108, 92, 231, 0.3);
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-buttons button:hover {
+      background: rgba(87, 75, 219, 0.5);
+      transform: scale(1.05);
+    }
+
+    .section {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 30px;
+      margin: 30px auto;
+      max-width: 900px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .location-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 15px;
+      padding-top: 20px;
+    }
+
+    .location-card {
+      background: rgba(129, 236, 236, 0.3);
+      color: #2d3436;
+      padding: 14px;
+      border-radius: 16px;
+      font-weight: bold;
+      font-size: 1rem;
+      text-align: center;
+      box-shadow: 2px 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .location-card:hover {
+      transform: scale(1.08);
+      cursor: pointer;
     }
 
     label, select, button, input {
@@ -27,57 +89,70 @@
       margin: 8px;
     }
 
-select, button, input {
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  background: linear-gradient(to left, #aa94d4, #c2ebd3, #f9f8cc); /* Reversed gradient */
-  color: #333;
-  font-weight: bold;
-  cursor: pointer;
-  transition: filter 0.3s ease;
-}
+    select, input[type="text"], input[type="number"] {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: rgba(255, 255, 255, 0.7);
+      color: #333;
+      min-width: 160px;
+    }
 
-button:hover {
-  filter: brightness(1.1); /* Slight glow effect */
-}
+    button {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(0, 184, 148, 0.6);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(8px);
+    }
 
-
-
-    .section {
-      padding: 40px 20px;
-      background-color: rgba(255,255,255,0.2);
-      border-radius: 20px;
-      margin-bottom: 40px;
+    button:hover {
+      background: rgba(1, 145, 112, 0.7);
+      transform: scale(1.04);
     }
 
     #output {
       margin-top: 30px;
       padding: 20px;
-      background-color: rgba(255, 255, 255, 0.3);
+      background: rgba(248, 249, 250, 0.6);
       border-radius: 20px;
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
+      backdrop-filter: blur(10px);
     }
 
     .path-result {
       text-align: left;
       margin-top: 15px;
-      background-color: #f9f8cc;
+      background: rgba(255, 249, 196, 0.5);
       padding: 15px;
-      border-left: 8px solid #aa94d4;
+      border-left: 8px solid #9575cd;
       border-radius: 12px;
       color: #222;
+      backdrop-filter: blur(6px);
     }
 
     .shortest-time {
-      background-color: #c2ebd3;
-      border-left-color: #2575fc;
+      background: rgba(200, 230, 201, 0.5);
+      border-left-color: #00bcd4;
     }
 
     .connection-row {
       margin: 10px 0;
+      font-size: 0.95rem;
+    }
+
+    @media screen and (max-width: 600px) {
+      select, input[type="text"], input[type="number"], button {
+        width: 100%;
+        margin: 8px 0;
+      }
+
+      .connection-row {
+        display: block;
+      }
     }
   </style>
 </head>
@@ -85,32 +160,27 @@ button:hover {
 
   <h1>🗺️ Walkway Path Finder</h1>
 
-  <!-- 🔘 Navigation Buttons -->
   <div class="nav-buttons">
     <button onclick="document.getElementById('section-locations').scrollIntoView()">📍 View Locations</button>
     <button onclick="document.getElementById('section-findpath').scrollIntoView()">🧭 Find Path</button>
     <button onclick="document.getElementById('section-addlocation').scrollIntoView()">➕ Add Location</button>
   </div>
 
-  <!-- 📍 Available Locations -->
   <div id="section-locations" class="section">
     <h2>📍 Available Locations</h2>
-    <ul id="locationList" style="list-style: none; padding: 0;"></ul>
+    <div id="locationList" class="location-grid"></div>
   </div>
 
-  <!-- 🧭 Pathfinding Section -->
   <div id="section-findpath" class="section">
     <h2>🧭 Find Your Path</h2>
-    <label for="start">Your Position :</label>
+    <label for="start">Your Position:</label>
     <select id="start"></select>
     <label for="end">Target Position:</label>
     <select id="end"></select>
     <button onclick="findPaths()">Find Paths</button>
-
     <div id="output"></div>
   </div>
 
-  <!-- ➕ Add Location Section -->
   <div id="section-addlocation" class="section">
     <h2>➕ Add New Location</h2>
     <input type="text" id="newLocationName" placeholder="New Location Name">
@@ -135,7 +205,7 @@ button:hover {
       [{ dest: 1, time: 15, bus: 30, rik: 0 }, { dest: 6, time: 10, bus: 0, rik: 30 }, { dest: 9, time: 10, bus: 0, rik: 30 }],
       [{ dest: 4, time: 20, bus: 10, rik: 0 }, { dest: 5, time: 10, bus: 10, rik: 0 }, { dest: 9, time: 20, bus: 10, rik: 60 }],
       [{ dest: 7, time: 10, bus: 0, rik: 30 }, { dest: 8, time: 20, bus: 10, rik: 60 }],
-      [ { dest: 0, time: 25, bus: 0, rik: 80 },{ dest: 1, time: 15, bus: 10, rik: 30 },{ dest: 3, time: 15, bus: 15, rik: 70 }]
+      [{ dest: 0, time: 25, bus: 0, rik: 80 },{ dest: 1, time: 15, bus: 10, rik: 30 },{ dest: 3, time: 15, bus: 15, rik: 70 }]
     ];
 
     function populateDropdowns() {
@@ -150,7 +220,7 @@ button:hover {
       places.forEach((place, idx) => {
         start.innerHTML += `<option value="${idx}">${place}</option>`;
         end.innerHTML += `<option value="${idx}">${place}</option>`;
-        list.innerHTML += `<li>📍 ${place}</li>`;
+        list.innerHTML += `<div class="location-card">📍 ${place}</div>`;
       });
     }
 
@@ -162,7 +232,14 @@ button:hover {
 
       function dfs(current, visited, path, costBus, costRik, costTime) {
         if (current === end) {
-          allPaths.push({ path: [...path], bus: costBus, rik: costRik, time: costTime });
+          const cheapCost = path.reduce((sum, node, i) => {
+            if (i === path.length - 1) return sum;
+            const next = path[i + 1];
+            const edge = graph[node].find(e => e.dest === next);
+            return sum + Math.min(edge.bus || edge.rik, edge.rik || edge.bus);
+          }, 0);
+
+          allPaths.push({ path: [...path], bus: costBus, rik: costRik, time: costTime, cheap: cheapCost });
           return;
         }
 
@@ -198,9 +275,20 @@ button:hover {
         <div class="path-result shortest-time">
           <strong>🚀 Shortest Time Path:</strong><br>
           ${shortestPathNames}<br>
-          🚌 Bus cost: <strong>${shortestTimePath.bus}</strong> |
-          🛺 Rikshaw cost: <strong>${shortestTimePath.rik}</strong> |
-          ⏱️ Total Time: <strong>${shortestTimePath.time} mins</strong>
+          🚌 Bus: <strong>${shortestTimePath.bus}</strong> |
+          🛺 Rikshaw: <strong>${shortestTimePath.rik}</strong> |
+          ⏱️ Time: <strong>${shortestTimePath.time} mins</strong>
+        </div>`;
+
+      const cheapestPath = allPaths.reduce((min, p) => p.cheap < min.cheap ? p : min, allPaths[0]);
+      const cheapestPathNames = cheapestPath.path.map(i => places[i]).join(" ➔ ");
+
+      output.innerHTML += `
+        <div class="path-result" style="background: rgba(227, 249, 229, 0.6); border-left-color:#43a047;">
+          <strong>💰 Cheapest Cost Path (min of bus/rikshaw per step):</strong><br>
+          ${cheapestPathNames}<br>
+          💸 Total Chosen Cost: <strong>${cheapestPath.cheap}</strong><br>
+          ⏱️ Time: <strong>${cheapestPath.time} mins</strong>
         </div>`;
 
       allPaths.forEach((p, i) => {
@@ -208,9 +296,10 @@ button:hover {
         output.innerHTML += `
           <div class='path-result'>
             <strong>Path ${i + 1}:</strong> ${pathNames}<br>
-            🚌 Bus cost: <strong>${p.bus}</strong> |
-            🛺 Rikshaw cost: <strong>${p.rik}</strong> |
-            ⏱️ Total Time: <strong>${p.time} mins</strong>
+            🚌 Bus: <strong>${p.bus}</strong> |
+            🛺 Rikshaw: <strong>${p.rik}</strong> |
+            💸 Min Stepwise Cost: <strong>${p.cheap}</strong> |
+            ⏱️ Time: <strong>${p.time} mins</strong>
           </div>`;
       });
     }
