@@ -1,42 +1,20 @@
-// Utility: Sanitization
-function sanitize(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-// Toast notifications
-function showToast(msg, duration=2500) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), duration);
-}
-
-// Loader
-function showLoader(show) {
-  document.getElementById('loader').style.display = show ? 'block' : 'none';
-}
-
-// Theme persistence
+// Theme persistence and toggle
 function setTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   localStorage.setItem("theme", theme);
 }
 function toggleTheme() {
-  const html = document.documentElement;
-  const current = html.getAttribute("data-theme");
+  const current = document.documentElement.getAttribute("data-theme");
   setTheme(current === "dark" ? "light" : "dark");
 }
 if (localStorage.getItem("theme")) setTheme(localStorage.getItem("theme"));
 
-// Data: Load from localStorage or default
-let places = JSON.parse(localStorage.getItem("places")) || [
+// Data (keep your original data)
+let places = [
   "Mirpur 14", "Mirpur 10", "Banani", "ECB", "Jamuna", "Gulshan",
   "Mohakhali", "Hatirjheel", "NotunBazar", "BRAC university", "Mirpur 12"
 ];
-// Initial graph: update as per your real connections
-let graph = JSON.parse(localStorage.getItem("graph")) || [
+let graph = [
   [{ dest: 1, time: 7, bus: 10, rik: 30 }, { dest: 2, time: 15, bus: 10, rik: 80 }, { dest: 10, time: 25, bus: 0, rik: 80 }, { dest: 3, time: 7, bus: 0, rik: 60 }],
   [{ dest: 0, time: 7, bus: 10, rik: 30 }, { dest: 10, time: 7, bus: 10, rik: 30 }, { dest: 7, time: 15, bus: 30, rik: 0 }],
   [{ dest: 0, time: 15, bus: 10, rik: 80 }, { dest: 5, time: 15, bus: 10, rik: 0 }, { dest: 6, time: 10, bus: 10, rik: 0 }],
@@ -50,12 +28,6 @@ let graph = JSON.parse(localStorage.getItem("graph")) || [
   [{ dest: 0, time: 25, bus: 0, rik: 80 }, { dest: 1, time: 15, bus: 10, rik: 30 }, { dest: 3, time: 15, bus: 15, rik: 70 }]
 ];
 
-// Save data
-function saveData() {
-  localStorage.setItem("places", JSON.stringify(places));
-  localStorage.setItem("graph", JSON.stringify(graph));
-}
-
 // Populate dropdowns and location list
 function populateDropdowns() {
   const start = document.getElementById("start");
@@ -65,106 +37,88 @@ function populateDropdowns() {
   end.innerHTML = "";
   list.innerHTML = "";
   places.forEach((place, idx) => {
-    start.innerHTML += `<option value="${idx}">${sanitize(place)}</option>`;
-    end.innerHTML += `<option value="${idx}">${sanitize(place)}</option>`;
-    list.innerHTML += `<div class="location-card" role="listitem">
-      📍 ${sanitize(place)}
-      <button type="button" onclick="editLocation(${idx})" aria-label="Edit ${sanitize(place)}">✏️</button>
-      <button type="button" onclick="deleteLocation(${idx})" aria-label="Delete ${sanitize(place)}">🗑️</button>
-    </div>`;
+    start.innerHTML += `<option value="${idx}">${place}</option>`;
+    end.innerHTML += `<option value="${idx}">${place}</option>`;
+    list.innerHTML += `<div class="location-card" role="listitem" tabindex="0">📍 ${place}</div>`;
   });
 }
 
-// Location search
-function filterDropdown(inputId, selectId) {
-  const input = document.getElementById(inputId);
-  const select = document.getElementById(selectId);
-  input.addEventListener('input', () => {
-    const val = input.value.toLowerCase();
-    select.innerHTML = places
-      .map((place, idx) => val === "" || place.toLowerCase().includes(val)
-        ? `<option value="${idx}">${sanitize(place)}</option>` : '').join('');
-  });
-}
-
-// Dijkstra's algorithm
-function dijkstra(start, end, costType='time') {
-  const N = places.length;
-  const dist = Array(N).fill(Infinity);
-  const prev = Array(N).fill(null);
-  dist[start] = 0;
-  const visited = Array(N).fill(false);
-  for(let count=0; count<N; count++) {
-    let u = -1;
-    for(let i=0; i<N; i++)
-      if (!visited[i] && (u === -1 || dist[i] < dist[u])) u = i;
-    if (dist[u] === Infinity) break;
-    visited[u] = true;
-    for (const edge of graph[u]) {
-      let cost = (costType === 'bus' ? edge.bus : costType === 'rik' ? edge.rik :
-                  costType === 'time' ? edge.time : Math.min(edge.bus || edge.rik, edge.rik || edge.bus));
-      if (dist[edge.dest] > dist[u] + cost) {
-        dist[edge.dest] = dist[u] + cost;
-        prev[edge.dest] = u;
+// Find all paths between start and end
+function findPaths() {
+  const start = parseInt(document.getElementById("start").value);
+  const end = parseInt(document.getElementById("end").value);
+  if (start === end) {
+    showOutput(`<p>Please select different start and end locations.</p>`);
+    return;
+  }
+  let allPaths = [];
+  function dfs(current, visited, path, costBus, costRik, costTime) {
+    if (current === end) {
+      const cheapCost = path.reduce((sum, node, i) => {
+        if (i === path.length - 1) return sum;
+        const next = path[i + 1];
+        const edge = graph[node].find(e => e.dest === next);
+        return sum + Math.min(edge.bus || edge.rik, edge.rik || edge.bus);
+      }, 0);
+      allPaths.push({ path: [...path], bus: costBus, rik: costRik, time: costTime, cheap: cheapCost });
+      return;
+    }
+    visited[current] = true;
+    for (const edge of graph[current]) {
+      if (!visited[edge.dest]) {
+        const bus = edge.bus === 0 ? edge.rik : edge.bus;
+        const rik = edge.rik === 0 ? edge.bus : edge.rik;
+        path.push(edge.dest);
+        dfs(edge.dest, visited, path, costBus + bus, costRik + rik, costTime + edge.time);
+        path.pop();
       }
     }
+    visited[current] = false;
   }
-  // Reconstruct path
-  const path = [];
-  let u = end;
-  while (u !== null) { path.unshift(u); u = prev[u]; }
-  if (path[0] !== start) return null;
-  return path;
-}
-
-// Find paths debounced
-let pathTimeout = null;
-function findPaths(e) {
-  if (e) e.preventDefault();
-  showLoader(true);
-  clearTimeout(pathTimeout);
-  pathTimeout = setTimeout(() => {
-    const start = parseInt(document.getElementById("start").value);
-    const end = parseInt(document.getElementById("end").value);
-    const filterType = document.getElementById("filterType").value;
-    if (start === end) {
-      showToast("Select different start and end locations.");
-      showLoader(false);
-      return;
-    }
-    let costType = filterType === "fastest" ? "time" : filterType === "cheapest" ? "bus" : "min";
-    let path = dijkstra(start, end, costType);
-    if (!path) {
-      showToast("No path found.");
-      showLoader(false);
-      document.getElementById("output").innerHTML = "<p>No path found.</p>";
-      return;
-    }
-    // Show output and visualize
-    let names = path.map(i => places[i]).join(" ➔ ");
-    document.getElementById("output").innerHTML =
-      `<div class="path-result"><strong>Best Path:</strong><br>${sanitize(names)}</div>`;
-    visualizeGraph(path);
-    showLoader(false);
-  }, 300);
-}
-
-// Graph Visualization using vis-network
-function visualizeGraph(path) {
-  const nodes = places.map((name, id) => ({ id, label: name }));
-  const edges = [];
-  graph.forEach((edgesArr, from) => {
-    edgesArr.forEach(edge => edges.push({
-      from, to: edge.dest, label: `${edge.time}m`, color: path.includes(from) && path.includes(edge.dest) ? 'red' : undefined
-    }));
+  dfs(start, Array(places.length).fill(false), [start], 0, 0, 0);
+  let html = `<h3>Paths from ${places[start]} to ${places[end]}</h3>`;
+  if (allPaths.length === 0) {
+    html += `<p>No path found.</p>`;
+    showOutput(html);
+    return;
+  }
+  const shortestTimePath = allPaths.reduce((min, p) => (p.time < min.time ? p : min), allPaths[0]);
+  const shortestPathNames = shortestTimePath.path.map(i => places[i]).join(" ➔ ");
+  html += `
+    <div class="path-result shortest-time">
+      <strong>🚀 Shortest Time Path:</strong><br>
+      ${shortestPathNames}<br>
+      🚌 Bus: <strong>${shortestTimePath.bus}</strong> |
+      🛺 Rikshaw: <strong>${shortestTimePath.rik}</strong> |
+      ⏱️ Time: <strong>${shortestTimePath.time} mins</strong>
+    </div>`;
+  const cheapestPath = allPaths.reduce((min, p) => p.cheap < min.cheap ? p : min, allPaths[0]);
+  const cheapestPathNames = cheapestPath.path.map(i => places[i]).join(" ➔ ");
+  html += `
+    <div class="path-result" style="background: rgba(227, 249, 229, 0.6); border-left-color:#43a047;">
+      <strong>💰 Cheapest Cost Path (min of bus/rikshaw per step):</strong><br>
+      ${cheapestPathNames}<br>
+      💸 Total Chosen Cost: <strong>${cheapestPath.cheap}</strong><br>
+      ⏱️ Time: <strong>${cheapestPath.time} mins</strong>
+    </div>`;
+  allPaths.forEach((p, i) => {
+    const pathNames = p.path.map(idx => places[idx]).join(" ➔ ");
+    html += `
+      <div class='path-result'>
+        <strong>Path ${i + 1}:</strong> ${pathNames}<br>
+        🚌 Bus: <strong>${p.bus}</strong> |
+        🛺 Rikshaw: <strong>${p.rik}</strong> |
+        💸 Min Stepwise Cost: <strong>${p.cheap}</strong> |
+        ⏱️ Time: <strong>${p.time} mins</strong>
+      </div>`;
   });
-  const container = document.getElementById('network');
-  const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
-  const options = { edges: { arrows: 'to', font: { align: 'top' } }, nodes: { shape: 'ellipse' } };
-  new vis.Network(container, data, options);
+  showOutput(html);
+}
+function showOutput(html) {
+  document.getElementById("output").innerHTML = html;
 }
 
-// Add/Edit/Delete Locations
+// Create inputs for new location connections
 function createNewConnectionInputs() {
   const container = document.getElementById("newConnections");
   container.innerHTML = "";
@@ -172,24 +126,24 @@ function createNewConnectionInputs() {
     const row = document.createElement("div");
     row.className = "connection-row";
     row.innerHTML = `
-      <label for="time_${index}"><strong>${sanitize(place)}</strong>:</label>
-      Time: <input type="number" min="0" id="time_${index}" style="width:60px;" aria-label="Time to ${sanitize(place)}">
-      Bus: <input type="number" min="0" id="bus_${index}" style="width:60px;" aria-label="Bus fare to ${sanitize(place)}">
-      Rik: <input type="number" min="0" id="rik_${index}" style="width:60px;" aria-label="Rikshaw fare to ${sanitize(place)}"><br>
+      <label for="time_${index}"><strong>${place}</strong>:</label>
+      Time: <input type="number" min="0" id="time_${index}" style="width:60px;" aria-label="Time to ${place}">
+      Bus: <input type="number" min="0" id="bus_${index}" style="width:60px;" aria-label="Bus fare to ${place}">
+      Rik: <input type="number" min="0" id="rik_${index}" style="width:60px;" aria-label="Rikshaw fare to ${place}"><br>
     `;
     container.appendChild(row);
   });
 }
 
-function addNewLocation(e) {
-  if (e) e.preventDefault();
+// Add a new location and its connections
+function addNewLocation() {
   const name = document.getElementById("newLocationName").value.trim();
   if (!name) {
-    showToast("Please enter a location name.");
+    alert("Please enter a location name.");
     return;
   }
   if (places.includes(name)) {
-    showToast("Location already exists!");
+    alert("Location already exists!");
     return;
   }
   const newIndex = places.length;
@@ -204,54 +158,28 @@ function addNewLocation(e) {
       graph[i].push({ dest: newIndex, time, bus, rik });
     }
   }
-  saveData();
   populateDropdowns();
   createNewConnectionInputs();
   document.getElementById("newLocationName").value = "";
-  showToast(`${sanitize(name)} added successfully!`);
+  alert(`${name} added successfully!`);
 }
 
-// Edit location
-function editLocation(idx) {
-  let name = prompt("Edit location name:", places[idx]);
-  if (!name || name.trim() === "" || places.includes(name.trim())) {
-    showToast("Invalid or duplicate name.");
-    return;
+// Keyboard accessibility for navigation (Tab + Enter)
+document.addEventListener('keydown', function(e) {
+  if (e.target.classList.contains('location-card') && (e.key === 'Enter' || e.key === ' ')) {
+    e.preventDefault();
+    // Optional: show details or highlight card
   }
-  places[idx] = name.trim();
-  saveData();
-  populateDropdowns();
-  showToast("Location edited.");
+});
+
+// Scroll to section utility (used by nav buttons)
+function scrollSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: "smooth" });
 }
 
-// Delete location
-function deleteLocation(idx) {
-  if (!confirm(`Delete location ${places[idx]}?`)) return;
-  places.splice(idx, 1);
-  graph.splice(idx, 1);
-  graph.forEach(edgesArr => {
-    for (let i = edgesArr.length - 1; i >= 0; i--) {
-      if (edgesArr[i].dest === idx) edgesArr.splice(i, 1);
-      else if (edgesArr[i].dest > idx) edgesArr[i].dest--;
-    }
-  });
-  saveData();
-  populateDropdowns();
-  createNewConnectionInputs();
-  showToast("Location deleted.");
-}
-
-// Initialization
+// Initialize on window load
 window.onload = () => {
+  setTheme(localStorage.getItem("theme") || "light");
   populateDropdowns();
   createNewConnectionInputs();
-  filterDropdown('startSearch', 'start');
-  filterDropdown('endSearch', 'end');
-  document.getElementById('findPathForm').onsubmit = findPaths;
-  document.getElementById('addLocationForm').onsubmit = addNewLocation;
 };
-
-// Tests (example)
-function test_dijkstra() {
-  console.assert(Array.isArray(dijkstra(0,1)), "Dijkstra should return array for valid path.");
-  console.assert(d
