@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Walkway Path Finder</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://unpkg.com/vis-network/styles/vis-network.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+  <button class="dark-toggle glass" aria-label="Toggle dark mode" onclick="toggleTheme()">🌙 Change Mode</button>
+  <div class="title-glass glass">
+    <h1>🗺️ Walkway Path Finder</h1>
+  </div>
+  <nav class="nav-buttons" aria-label="Main navigation">
+    <button type="button" onclick="scrollSection('section-locations')">📍 View Locations</button>
+    <button type="button" onclick="scrollSection('section-findpath')">🧭 Find Path</button>
+    <button type="button" onclick="scrollSection('section-addlocation')">➕ Add Location</button>
+  </nav>
+  <main>
+    <section id="section-locations" aria-labelledby="locations-title">
+      <h2 id="locations-title">📍 Available Locations</h2>
+      <div id="locationList" class="location-grid" role="list"></div>
+    </section>
+    <section id="section-findpath" aria-labelledby="findpath-title">
+      <h2 id="findpath-title">🧭 Find Your Path</h2>
+      <form id="findPathForm" autocomplete="off">
+        <label for="startSearch">Search Start:</label>
+        <input type="text" id="startSearch" placeholder="Type to search...">
+        <select id="start" aria-label="Start location"></select>
+        <label for="endSearch">Search End:</label>
+        <input type="text" id="endSearch" placeholder="Type to search...">
+        <select id="end" aria-label="End location"></select>
+        <label for="filterType">Path Type:</label>
+        <select id="filterType">
+          <option value="fastest">Fastest</option>
+          <option value="cheapest">Cheapest</option>
+          <option value="minTransfers">Minimum Transfers</option>
+        </select>
+        <button type="submit">Find Paths</button>
+      </form>
+      <div id="loader" class="loader" aria-hidden="true"></div>
+      <div id="output" aria-live="polite"></div>
+      <div id="network" style="height: 400px; margin: 20px 0;"></div>
+    </section>
+    <section id="section-addlocation" aria-labelledby="addlocation-title">
+      <h2 id="addlocation-title">➕ Add New Location</h2>
+      <form id="addLocationForm" autocomplete="off">
+        <input type="text" id="newLocationName" placeholder="New Location Name" required>
+        <div id="newConnections"></div>
+        <button type="submit">Add Location</button>
+      </form>
+    </section>
+  </main>
+  <div id="toast" class="toast" aria-live="assertive"></div>
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
