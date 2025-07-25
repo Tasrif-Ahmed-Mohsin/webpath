@@ -17,7 +17,29 @@
       margin: 0;
     }
 
-    h1, h2 {
+.title-glass {
+  background: rgba(255, 255, 255, 0.25);
+  padding: 12px 20px;
+  margin: 10px auto 30px;
+  max-width: fit-content;
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  text-align: center;
+}
+
+.title-glass h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #2d3436;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+
+    h2 {
       color: #333;
       margin-bottom: 20px;
       text-align: center;
@@ -27,25 +49,29 @@
       text-align: center;
       margin-bottom: 30px;
     }
+.nav-buttons button {
+  padding: 12px 20px;
+  margin: 8px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #2d3436;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
 
-    .nav-buttons button {
-      padding: 12px 20px;
-      margin: 8px;
-      border: none;
-      border-radius: 10px;
-      background: rgba(108, 92, 231, 0.3);
-      color: white;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
+.nav-buttons button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.06);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
 
-    .nav-buttons button:hover {
-      background: rgba(87, 75, 219, 0.5);
-      transform: scale(1.05);
-    }
 
     .section {
       background: rgba(255, 255, 255, 0.2);
@@ -98,22 +124,28 @@
       min-width: 160px;
     }
 
-    button {
-      padding: 10px 16px;
-      border-radius: 10px;
-      border: none;
-      background: rgba(0, 184, 148, 0.6);
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(8px);
-    }
+  button {
+  padding: 12px 20px;
+  border-radius: 14px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: #2d3436;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
 
-    button:hover {
-      background: rgba(1, 145, 112, 0.7);
-      transform: scale(1.04);
-    }
+button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.06);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
 
     #output {
       margin-top: 30px;
@@ -158,7 +190,9 @@
 </head>
 <body>
 
-  <h1>🗺️ Walkway Path Finder</h1>
+  <div class="title-glass">
+    <h1>🗺️ Walkway Path Finder</h1>
+  </div>
 
   <div class="nav-buttons">
     <button onclick="document.getElementById('section-locations').scrollIntoView()">📍 View Locations</button>
