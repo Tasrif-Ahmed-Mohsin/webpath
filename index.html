@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -11,77 +11,117 @@
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #e4daf3, #d3f2e1, #fcfbe0);
-      color: #2d3436;
+      background: var(--bg);
+      color: var(--text);
       padding: 20px;
       margin: 0;
+      transition: background 0.5s ease, color 0.5s ease;
     }
 
-.title-glass {
-  background: rgba(255, 255, 255, 0.25);
-  padding: 12px 20px;
-  margin: 10px auto 30px;
-  max-width: fit-content;
-  border-radius: 14px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  text-align: center;
-}
+    :root[data-theme='light'] {
+      --bg: linear-gradient(to right, #e4daf3, #d3f2e1, #fcfbe0);
+      --text: #2d3436;
+      --glass-bg: rgba(255, 255, 255, 0.2);
+      --glass-border: rgba(255, 255, 255, 0.25);
+      --glass-shadow: rgba(0, 0, 0, 0.1);
+    }
 
-.title-glass h1 {
-  margin: 0;
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: #2d3436;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
-}
+    :root[data-theme='dark'] {
+      --bg: linear-gradient(to right, #1e1e2f, #1b2b2f, #222);
+      --text: #ecf0f1;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.15);
+      --glass-shadow: rgba(0, 0, 0, 0.4);
+    }
 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-    h2 {
-      color: #333;
-      margin-bottom: 20px;
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 12px var(--glass-shadow);
+      transition: all 0.4s ease;
+    }
+
+    .title-glass {
+      padding: 12px 20px;
+      margin: 10px auto 30px;
+      max-width: fit-content;
+      border-radius: 14px;
       text-align: center;
+    }
+
+    .title-glass h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--text);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .dark-toggle {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      background: var(--glass-bg);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      color: var(--text);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 12px var(--glass-shadow);
+      z-index: 100;
+      transition: all 0.3s ease;
+    }
+
+    .dark-toggle:hover {
+      transform: scale(1.05);
     }
 
     .nav-buttons {
       text-align: center;
       margin-bottom: 30px;
     }
-.nav-buttons button {
-  padding: 12px 20px;
-  margin: 8px;
-  border: none;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.2);
-  color: #2d3436;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
 
-.nav-buttons button:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.06);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
+    .nav-buttons button,
+    button {
+      padding: 12px 20px;
+      margin: 8px;
+      border: none;
+      border-radius: 14px;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 12px var(--glass-shadow);
+      transition: all 0.3s ease;
+    }
 
+    .nav-buttons button:hover,
+    button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.06);
+    }
 
     .section {
-      background: rgba(255, 255, 255, 0.2);
       border-radius: 20px;
       padding: 30px;
       margin: 30px auto;
       max-width: 900px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.4s ease;
+      opacity: 0;
+      animation: fadeIn 0.7s ease forwards;
     }
 
     .location-grid {
@@ -93,7 +133,7 @@
 
     .location-card {
       background: rgba(129, 236, 236, 0.3);
-      color: #2d3436;
+      color: var(--text);
       padding: 14px;
       border-radius: 16px;
       font-weight: bold;
@@ -110,9 +150,10 @@
       cursor: pointer;
     }
 
-    label, select, button, input {
+    label, select, input {
       font-size: 1rem;
       margin: 8px;
+      color: var(--text);
     }
 
     select, input[type="text"], input[type="number"] {
@@ -124,35 +165,10 @@
       min-width: 160px;
     }
 
-  button {
-  padding: 12px 20px;
-  border-radius: 14px;
-  border: none;
-  background: rgba(255, 255, 255, 0.2);
-  color: #2d3436;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-button:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.06);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-
     #output {
       margin-top: 30px;
       padding: 20px;
-      background: rgba(248, 249, 250, 0.6);
       border-radius: 20px;
-      backdrop-filter: blur(10px);
     }
 
     .path-result {
@@ -164,6 +180,7 @@ button:hover {
       border-radius: 12px;
       color: #222;
       backdrop-filter: blur(6px);
+      animation: fadeIn 0.6s ease-in-out;
     }
 
     .shortest-time {
@@ -189,33 +206,34 @@ button:hover {
   </style>
 </head>
 <body>
+  <div class="dark-toggle glass" onclick="toggleTheme()">🌙 Change Mode</div>
 
-  <div class="title-glass">
+  <div class="title-glass glass">
     <h1>🗺️ Walkway Path Finder</h1>
   </div>
 
   <div class="nav-buttons">
-    <button onclick="document.getElementById('section-locations').scrollIntoView()">📍 View Locations</button>
-    <button onclick="document.getElementById('section-findpath').scrollIntoView()">🧭 Find Path</button>
-    <button onclick="document.getElementById('section-addlocation').scrollIntoView()">➕ Add Location</button>
+    <button class="glass" onclick="document.getElementById('section-locations').scrollIntoView()">📍 View Locations</button>
+    <button class="glass" onclick="document.getElementById('section-findpath').scrollIntoView()">🧭 Find Path</button>
+    <button class="glass" onclick="document.getElementById('section-addlocation').scrollIntoView()">➕ Add Location</button>
   </div>
 
-  <div id="section-locations" class="section">
+  <div id="section-locations" class="section glass">
     <h2>📍 Available Locations</h2>
     <div id="locationList" class="location-grid"></div>
   </div>
 
-  <div id="section-findpath" class="section">
+  <div id="section-findpath" class="section glass">
     <h2>🧭 Find Your Path</h2>
     <label for="start">Your Position:</label>
     <select id="start"></select>
     <label for="end">Target Position:</label>
     <select id="end"></select>
     <button onclick="findPaths()">Find Paths</button>
-    <div id="output"></div>
+    <div id="output" class="fade-in"></div>
   </div>
 
-  <div id="section-addlocation" class="section">
+  <div id="section-addlocation" class="section glass">
     <h2>➕ Add New Location</h2>
     <input type="text" id="newLocationName" placeholder="New Location Name">
     <div id="newConnections"></div>
@@ -223,11 +241,13 @@ button:hover {
   </div>
 
   <script>
-    let places = [
-      "Mirpur 14", "Mirpur 10", "Banani", "ECB", "Jamuna", "Gulshan",
-      "Mohakhali", "Hatirjheel", "NotunBazar", "BRAC university", "Mirpur 12"
-    ];
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme");
+      html.setAttribute("data-theme", current === "dark" ? "light" : "dark");
+    }
 
+    let places = ["Mirpur 14", "Mirpur 10", "Banani", "ECB", "Jamuna", "Gulshan", "Mohakhali", "Hatirjheel", "NotunBazar", "BRAC university", "Mirpur 12"];
     let graph = [
       [{ dest: 1, time: 7, bus: 10, rik: 30 }, { dest: 2, time: 15, bus: 10, rik: 80 },{ dest: 10, time: 25, bus: 0, rik: 80 }, { dest: 3, time: 7, bus: 0, rik: 60 }],
       [{ dest: 0, time: 7, bus: 10, rik: 30 },{ dest: 10, time: 7, bus: 10, rik: 30 }, { dest: 7, time: 15, bus: 30, rik: 0 }],
@@ -372,18 +392,22 @@ button:hover {
 
         if (!isNaN(time) && !isNaN(bus) && !isNaN(rik)) {
           graph[newIndex].push({ dest: i, time, bus, rik });
-          graph[i].push({ dest: newIndex, time, bus, rik });
+                   graph[i].push({ dest: newIndex, time, bus, rik });
         }
       }
 
-      alert(`✅ '${name}' added!`);
-      document.getElementById("newLocationName").value = "";
+      // Refresh dropdowns and location display
       populateDropdowns();
       createNewConnectionInputs();
+      document.getElementById("newLocationName").value = "";
+      alert(`${name} added successfully!`);
     }
 
-    populateDropdowns();
-    createNewConnectionInputs();
+    // Initial setup
+    window.onload = () => {
+      populateDropdowns();
+      createNewConnectionInputs();
+    };
   </script>
 </body>
 </html>
