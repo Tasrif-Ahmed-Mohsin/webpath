@@ -3,9 +3,207 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Walkway Path Finder</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://unpkg.com/vis-network/styles/vis-network.css" rel="stylesheet" type="text/css" />
+  <title>Walkway Graph</title>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      margin: 0;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+    :root[data-theme='light'] {
+      --bg: linear-gradient(to right, #d2f0ff, #e0ffeb, #f9e8ff);
+      --text: #1a1a1a;
+      --glass-bg: rgba(255, 255, 255, 0.25);
+      --glass-border: rgba(255, 255, 255, 0.4);
+      --glass-shadow: rgba(0, 0, 0, 0.08);
+      --highlight: #00acc1;
+    }
+    :root[data-theme='dark'] {
+      --bg: linear-gradient(to right, #101a2b, #203a43, #2c5364);
+      --text: #fafafa;
+      --glass-bg: rgba(20, 20, 25, 0.3);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --glass-shadow: rgba(0, 0, 0, 0.5);
+      --highlight: #26c6da;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.6s ease-in-out; }
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 6px 14px var(--glass-shadow);
+      transition: all 0.4s ease;
+    }
+    .title-glass {
+      padding: 12px 20px;
+      margin: 10px auto 30px;
+      max-width: fit-content;
+      border-radius: 16px;
+      text-align: center;
+    }
+    .title-glass h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--text);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    .dark-toggle {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      background: var(--glass-bg);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: var(--text);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 12px var(--glass-shadow);
+      z-index: 100;
+      transition: all 0.3s ease;
+    }
+    .dark-toggle:focus { outline: 2px solid var(--highlight); }
+    .dark-toggle:hover { transform: scale(1.08); background: var(--highlight); color: #fff; }
+    nav.nav-buttons {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .nav-buttons button,
+    button {
+      padding: 12px 20px;
+      margin: 8px;
+      border: none;
+      border-radius: 14px;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 12px var(--glass-shadow);
+      transition: all 0.3s ease;
+    }
+    .nav-buttons button:focus,
+    button:focus { outline: 2px solid var(--highlight); }
+    .nav-buttons button:hover,
+    button:hover {
+      background: var(--highlight);
+      color: white;
+      transform: scale(1.06);
+    }
+    main .section {
+      border-radius: 20px;
+      padding: 30px;
+      margin: 30px auto;
+      max-width: 900px;
+      transition: all 0.4s ease;
+      opacity: 0;
+      animation: fadeIn 0.7s ease forwards;
+    }
+    /* IMPROVED GRID FOR CONSISTENCY */
+    .location-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 24px;
+      padding-top: 20px;
+      align-items: stretch;
+      justify-items: center;
+    }
+    .location-card {
+      width: 100%;
+      min-width: 140px;
+      max-width: 200px;
+      background: rgba(255, 255, 255, 0.18);
+      color: var(--text);
+      padding: 18px 10px;
+      border-radius: 16px;
+      font-weight: bold;
+      font-size: 1rem;
+      text-align: center;
+      box-shadow: 2px 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s, background 0.3s, color 0.3s;
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 70px;
+    }
+    .location-card:hover {
+      transform: scale(1.08);
+      cursor: pointer;
+      background: var(--highlight);
+      color: white;
+    }
+    label, select, input {
+      font-size: 1rem;
+      margin: 8px;
+      color: var(--text);
+    }
+    select, input[type="text"], input[type="number"] {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: rgba(255, 255, 255, 0.8);
+      color: #333;
+      min-width: 160px;
+    }
+    #output {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 20px;
+    }
+    .path-result {
+      text-align: left;
+      margin-top: 15px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      border-left: 8px solid var(--highlight);
+      border-radius: 12px;
+      color: var(--text);
+      backdrop-filter: blur(6px);
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    .shortest-time {
+      background: rgba(179, 229, 252, 0.5);
+      border-left-color: #00bcd4;
+    }
+    .connection-row {
+      margin: 10px 0;
+      font-size: 0.95rem;
+    }
+    @media screen and (max-width: 600px) {
+      select, input[type="text"], input[type="number"], button {
+        width: 100%;
+        margin: 8px 0;
+      }
+      .connection-row {
+        display: block;
+      }
+      main .section {
+        padding: 10px;
+      }
+      /* Make sure grid is single column on mobile */
+      .location-grid {
+        grid-template-columns: 1fr;
+      }
+      .location-card {
+        max-width: none;
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
   <button class="dark-toggle glass" aria-label="Toggle dark mode" onclick="toggleTheme()">🌙 Change Mode</button>
@@ -13,47 +211,205 @@
     <h1>🗺️ Walkway Path Finder</h1>
   </div>
   <nav class="nav-buttons" aria-label="Main navigation">
-    <button type="button" onclick="scrollSection('section-locations')">📍 View Locations</button>
-    <button type="button" onclick="scrollSection('section-findpath')">🧭 Find Path</button>
-    <button type="button" onclick="scrollSection('section-addlocation')">➕ Add Location</button>
+    <button class="glass" onclick="scrollSection('section-locations')">📍 View Locations</button>
+    <button class="glass" onclick="scrollSection('section-findpath')">🧭 Find Path</button>
+    <button class="glass" onclick="scrollSection('section-addlocation')">➕ Add Location</button>
   </nav>
   <main>
-    <section id="section-locations" aria-labelledby="locations-title">
+    <section id="section-locations" class="section glass" aria-labelledby="locations-title">
       <h2 id="locations-title">📍 Available Locations</h2>
       <div id="locationList" class="location-grid" role="list"></div>
     </section>
-    <section id="section-findpath" aria-labelledby="findpath-title">
+    <section id="section-findpath" class="section glass" aria-labelledby="findpath-title">
       <h2 id="findpath-title">🧭 Find Your Path</h2>
-      <form id="findPathForm" autocomplete="off">
-        <label for="startSearch">Search Start:</label>
-        <input type="text" id="startSearch" placeholder="Type to search...">
+      <form id="findPathForm" onsubmit="event.preventDefault(); findPaths();">
+        <label for="start">Your Position:</label>
         <select id="start" aria-label="Start location"></select>
-        <label for="endSearch">Search End:</label>
-        <input type="text" id="endSearch" placeholder="Type to search...">
+        <label for="end">Target Position:</label>
         <select id="end" aria-label="End location"></select>
-        <label for="filterType">Path Type:</label>
-        <select id="filterType">
-          <option value="fastest">Fastest</option>
-          <option value="cheapest">Cheapest</option>
-          <option value="minTransfers">Minimum Transfers</option>
-        </select>
         <button type="submit">Find Paths</button>
       </form>
-      <div id="loader" class="loader" aria-hidden="true"></div>
-      <div id="output" aria-live="polite"></div>
-      <div id="network" style="height: 400px; margin: 20px 0;"></div>
+      <div id="output" class="fade-in" aria-live="polite"></div>
     </section>
-    <section id="section-addlocation" aria-labelledby="addlocation-title">
+    <section id="section-addlocation" class="section glass" aria-labelledby="addlocation-title">
       <h2 id="addlocation-title">➕ Add New Location</h2>
-      <form id="addLocationForm" autocomplete="off">
-        <input type="text" id="newLocationName" placeholder="New Location Name" required>
+      <form id="addLocationForm" onsubmit="event.preventDefault(); addNewLocation();">
+        <input type="text" id="newLocationName" placeholder="New Location Name" aria-label="New Location Name" required>
         <div id="newConnections"></div>
         <button type="submit">Add Location</button>
       </form>
     </section>
   </main>
-  <div id="toast" class="toast" aria-live="assertive"></div>
-  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-  <script src="script.js"></script>
+  <script>
+    // Theme persistence
+    function setTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("theme", theme);
+    }
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme");
+      setTheme(current === "dark" ? "light" : "dark");
+    }
+    window.onload = () => {
+      setTheme(localStorage.getItem("theme") || "light");
+      populateDropdowns();
+      createNewConnectionInputs();
+    };
+
+    function scrollSection(id) {
+      document.getElementById(id).scrollIntoView({ behavior: "smooth" });
+    }
+
+    let places = [
+      "Mirpur 14", "Mirpur 10", "Banani", "ECB", "Jamuna", "Gulshan",
+      "Mohakhali", "Hatirjheel", "NotunBazar", "BRAC university", "Mirpur 12"
+    ];
+    let graph = [
+      [{ dest: 1, time: 7, bus: 10, rik: 30 }, { dest: 2, time: 15, bus: 10, rik: 80 }, { dest: 10, time: 25, bus: 0, rik: 80 }, { dest: 3, time: 7, bus: 0, rik: 60 }],
+      [{ dest: 0, time: 7, bus: 10, rik: 30 }, { dest: 10, time: 7, bus: 10, rik: 30 }, { dest: 7, time: 15, bus: 30, rik: 0 }],
+      [{ dest: 0, time: 15, bus: 10, rik: 80 }, { dest: 5, time: 15, bus: 10, rik: 0 }, { dest: 6, time: 10, bus: 10, rik: 0 }],
+      [{ dest: 0, time: 7, bus: 0, rik: 60 }, { dest: 10, time: 15, bus: 15, rik: 70 }, { dest: 4, time: 20, bus: 10, rik: 0 }],
+      [{ dest: 3, time: 20, bus: 10, rik: 0 }, { dest: 8, time: 20, bus: 10, rik: 0 }],
+      [{ dest: 2, time: 15, bus: 10, rik: 0 }, { dest: 8, time: 10, bus: 10, rik: 0 }],
+      [{ dest: 2, time: 10, bus: 10, rik: 0 }, { dest: 7, time: 10, bus: 0, rik: 30 }],
+      [{ dest: 1, time: 15, bus: 30, rik: 0 }, { dest: 6, time: 10, bus: 0, rik: 30 }, { dest: 9, time: 10, bus: 0, rik: 30 }],
+      [{ dest: 4, time: 20, bus: 10, rik: 0 }, { dest: 5, time: 10, bus: 10, rik: 0 }, { dest: 9, time: 20, bus: 10, rik: 60 }],
+      [{ dest: 7, time: 10, bus: 0, rik: 30 }, { dest: 8, time: 20, bus: 10, rik: 60 }],
+      [{ dest: 0, time: 25, bus: 0, rik: 80 }, { dest: 1, time: 15, bus: 10, rik: 30 }, { dest: 3, time: 15, bus: 15, rik: 70 }]
+    ];
+
+    function populateDropdowns() {
+      const start = document.getElementById("start");
+      const end = document.getElementById("end");
+      const list = document.getElementById("locationList");
+      start.innerHTML = "";
+      end.innerHTML = "";
+      list.innerHTML = "";
+      places.forEach((place, idx) => {
+        start.innerHTML += `<option value="${idx}">${place}</option>`;
+        end.innerHTML += `<option value="${idx}">${place}</option>`;
+        list.innerHTML += `<div class="location-card" role="listitem">📍 ${place}</div>`;
+      });
+    }
+
+    function findPaths() {
+      const start = parseInt(document.getElementById("start").value);
+      const end = parseInt(document.getElementById("end").value);
+      if (start === end) {
+        showOutput(`<p>Please select different start and end locations.</p>`);
+        return;
+      }
+      let allPaths = [];
+      function dfs(current, visited, path, costBus, costRik, costTime) {
+        if (current === end) {
+          const cheapCost = path.reduce((sum, node, i) => {
+            if (i === path.length - 1) return sum;
+            const next = path[i + 1];
+            const edge = graph[node].find(e => e.dest === next);
+            return sum + Math.min(edge.bus || edge.rik, edge.rik || edge.bus);
+          }, 0);
+          allPaths.push({ path: [...path], bus: costBus, rik: costRik, time: costTime, cheap: cheapCost });
+          return;
+        }
+        visited[current] = true;
+        for (const edge of graph[current]) {
+          if (!visited[edge.dest]) {
+            const bus = edge.bus === 0 ? edge.rik : edge.bus;
+            const rik = edge.rik === 0 ? edge.bus : edge.rik;
+            path.push(edge.dest);
+            dfs(edge.dest, visited, path, costBus + bus, costRik + rik, costTime + edge.time);
+            path.pop();
+          }
+        }
+        visited[current] = false;
+      }
+      dfs(start, Array(places.length).fill(false), [start], 0, 0, 0);
+      let html = `<h3>Paths from ${places[start]} to ${places[end]}</h3>`;
+      if (allPaths.length === 0) {
+        html += `<p>No path found.</p>`;
+        showOutput(html);
+        return;
+      }
+      const shortestTimePath = allPaths.reduce((min, p) => (p.time < min.time ? p : min), allPaths[0]);
+      const shortestPathNames = shortestTimePath.path.map(i => places[i]).join(" ➔ ");
+      html += `
+        <div class="path-result shortest-time">
+          <strong>🚀 Shortest Time Path:</strong><br>
+          ${shortestPathNames}<br>
+          🚌 Bus: <strong>${shortestTimePath.bus}</strong> |
+          🛺 Rikshaw: <strong>${shortestTimePath.rik}</strong> |
+          ⏱️ Time: <strong>${shortestTimePath.time} mins</strong>
+        </div>`;
+      const cheapestPath = allPaths.reduce((min, p) => p.cheap < min.cheap ? p : min, allPaths[0]);
+      const cheapestPathNames = cheapestPath.path.map(i => places[i]).join(" ➔ ");
+      html += `
+        <div class="path-result" style="background: rgba(227, 249, 229, 0.6); border-left-color:#43a047;">
+          <strong>💰 Cheapest Cost Path (min of bus/rikshaw per step):</strong><br>
+          ${cheapestPathNames}<br>
+          💸 Total Chosen Cost: <strong>${cheapestPath.cheap}</strong><br>
+          ⏱️ Time: <strong>${cheapestPath.time} mins</strong>
+        </div>`;
+      allPaths.forEach((p, i) => {
+        const pathNames = p.path.map(idx => places[idx]).join(" ➔ ");
+        html += `
+          <div class='path-result'>
+            <strong>Path ${i + 1}:</strong> ${pathNames}<br>
+            🚌 Bus: <strong>${p.bus}</strong> |
+            🛺 Rikshaw: <strong>${p.rik}</strong> |
+            💸 Min Stepwise Cost: <strong>${p.cheap}</strong> |
+            ⏱️ Time: <strong>${p.time} mins</strong>
+          </div>`;
+      });
+      showOutput(html);
+    }
+    function showOutput(html) {
+      document.getElementById("output").innerHTML = html;
+    }
+
+    function createNewConnectionInputs() {
+      const container = document.getElementById("newConnections");
+      container.innerHTML = "";
+      places.forEach((place, index) => {
+        const row = document.createElement("div");
+        row.className = "connection-row";
+        row.innerHTML = `
+          <label for="time_${index}"><strong>${place}</strong>:</label>
+          Time: <input type="number" min="0" id="time_${index}" style="width:60px;" aria-label="Time to ${place}">
+          Bus: <input type="number" min="0" id="bus_${index}" style="width:60px;" aria-label="Bus fare to ${place}">
+          Rik: <input type="number" min="0" id="rik_${index}" style="width:60px;" aria-label="Rikshaw fare to ${place}"><br>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function addNewLocation() {
+      const name = document.getElementById("newLocationName").value.trim();
+      if (!name) {
+        alert("Please enter a location name.");
+        return;
+      }
+      if (places.includes(name)) {
+        alert("Location already exists!");
+        return;
+      }
+      const newIndex = places.length;
+      places.push(name);
+      graph.push([]);
+      for (let i = 0; i < newIndex; i++) {
+        const time = parseInt(document.getElementById(`time_${i}`).value);
+        const bus = parseInt(document.getElementById(`bus_${i}`).value);
+        const rik = parseInt(document.getElementById(`rik_${i}`).value);
+        if (!isNaN(time) && !isNaN(bus) && !isNaN(rik) && (time > 0 || bus > 0 || rik > 0)) {
+          graph[newIndex].push({ dest: i, time, bus, rik });
+          graph[i].push({ dest: newIndex, time, bus, rik });
+        }
+      }
+      populateDropdowns();
+      createNewConnectionInputs();
+      document.getElementById("newLocationName").value = "";
+      alert(`${name} added successfully!`);
+    }
+  </script>
 </body>
 </html>
