@@ -19,19 +19,21 @@
     }
 
     :root[data-theme='light'] {
-      --bg: linear-gradient(to right, #e4daf3, #d3f2e1, #fcfbe0);
-      --text: #2d3436;
-      --glass-bg: rgba(255, 255, 255, 0.2);
-      --glass-border: rgba(255, 255, 255, 0.25);
-      --glass-shadow: rgba(0, 0, 0, 0.1);
+      --bg: linear-gradient(to right, #d2f0ff, #e0ffeb, #f9e8ff);
+      --text: #1a1a1a;
+      --glass-bg: rgba(255, 255, 255, 0.25);
+      --glass-border: rgba(255, 255, 255, 0.4);
+      --glass-shadow: rgba(0, 0, 0, 0.08);
+      --highlight: #00acc1;
     }
 
     :root[data-theme='dark'] {
-      --bg: linear-gradient(to right, #1e1e2f, #1b2b2f, #222);
-      --text: #ecf0f1;
-      --glass-bg: rgba(255, 255, 255, 0.1);
-      --glass-border: rgba(255, 255, 255, 0.15);
-      --glass-shadow: rgba(0, 0, 0, 0.4);
+      --bg: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      --text: #f1f1f1;
+      --glass-bg: rgba(0, 0, 0, 0.3);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --glass-shadow: rgba(0, 0, 0, 0.5);
+      --highlight: #26c6da;
     }
 
     @keyframes fadeIn {
@@ -45,10 +47,10 @@
 
     .glass {
       background: var(--glass-bg);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--glass-border);
-      box-shadow: 0 4px 12px var(--glass-shadow);
+      box-shadow: 0 6px 14px var(--glass-shadow);
       transition: all 0.4s ease;
     }
 
@@ -56,16 +58,16 @@
       padding: 12px 20px;
       margin: 10px auto 30px;
       max-width: fit-content;
-      border-radius: 14px;
+      border-radius: 16px;
       text-align: center;
     }
 
     .title-glass h1 {
       margin: 0;
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: 600;
       color: var(--text);
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     }
 
     .dark-toggle {
@@ -74,7 +76,7 @@
       right: 20px;
       background: var(--glass-bg);
       padding: 10px 14px;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
       color: var(--text);
       border: 1px solid var(--glass-border);
@@ -110,7 +112,8 @@
 
     .nav-buttons button:hover,
     button:hover {
-      background: rgba(255, 255, 255, 0.3);
+      background: var(--highlight);
+      color: white;
       transform: scale(1.06);
     }
 
@@ -132,7 +135,7 @@
     }
 
     .location-card {
-      background: rgba(129, 236, 236, 0.3);
+      background: rgba(255, 255, 255, 0.18);
       color: var(--text);
       padding: 14px;
       border-radius: 16px;
@@ -141,13 +144,15 @@
       text-align: center;
       box-shadow: 2px 4px 10px rgba(0,0,0,0.1);
       transition: transform 0.3s;
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
     }
 
     .location-card:hover {
       transform: scale(1.08);
       cursor: pointer;
+      background: var(--highlight);
+      color: white;
     }
 
     label, select, input {
@@ -160,7 +165,7 @@
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.8);
       color: #333;
       min-width: 160px;
     }
@@ -174,17 +179,17 @@
     .path-result {
       text-align: left;
       margin-top: 15px;
-      background: rgba(255, 249, 196, 0.5);
+      background: rgba(255, 255, 255, 0.2);
       padding: 15px;
-      border-left: 8px solid #9575cd;
+      border-left: 8px solid var(--highlight);
       border-radius: 12px;
-      color: #222;
+      color: var(--text);
       backdrop-filter: blur(6px);
       animation: fadeIn 0.6s ease-in-out;
     }
 
     .shortest-time {
-      background: rgba(200, 230, 201, 0.5);
+      background: rgba(179, 229, 252, 0.5);
       border-left-color: #00bcd4;
     }
 
@@ -281,7 +286,6 @@
     function findPaths() {
       const start = parseInt(document.getElementById("start").value);
       const end = parseInt(document.getElementById("end").value);
-
       let allPaths = [];
 
       function dfs(current, visited, path, costBus, costRik, costTime) {
@@ -292,13 +296,10 @@
             const edge = graph[node].find(e => e.dest === next);
             return sum + Math.min(edge.bus || edge.rik, edge.rik || edge.bus);
           }, 0);
-
           allPaths.push({ path: [...path], bus: costBus, rik: costRik, time: costTime, cheap: cheapCost });
           return;
         }
-
         visited[current] = true;
-
         for (const edge of graph[current]) {
           if (!visited[edge.dest]) {
             const bus = edge.bus === 0 ? edge.rik : edge.bus;
@@ -308,7 +309,6 @@
             path.pop();
           }
         }
-
         visited[current] = false;
       }
 
@@ -324,7 +324,6 @@
 
       const shortestTimePath = allPaths.reduce((min, p) => (p.time < min.time ? p : min), allPaths[0]);
       const shortestPathNames = shortestTimePath.path.map(i => places[i]).join(" ➔ ");
-
       output.innerHTML += `
         <div class="path-result shortest-time">
           <strong>🚀 Shortest Time Path:</strong><br>
@@ -336,7 +335,6 @@
 
       const cheapestPath = allPaths.reduce((min, p) => p.cheap < min.cheap ? p : min, allPaths[0]);
       const cheapestPathNames = cheapestPath.path.map(i => places[i]).join(" ➔ ");
-
       output.innerHTML += `
         <div class="path-result" style="background: rgba(227, 249, 229, 0.6); border-left-color:#43a047;">
           <strong>💰 Cheapest Cost Path (min of bus/rikshaw per step):</strong><br>
@@ -380,30 +378,24 @@
         alert("Please enter a location name.");
         return;
       }
-
       const newIndex = places.length;
       places.push(name);
       graph.push([]);
-
       for (let i = 0; i < newIndex; i++) {
         const time = parseInt(document.getElementById(`time_${i}`).value);
         const bus = parseInt(document.getElementById(`bus_${i}`).value);
         const rik = parseInt(document.getElementById(`rik_${i}`).value);
-
         if (!isNaN(time) && !isNaN(bus) && !isNaN(rik)) {
           graph[newIndex].push({ dest: i, time, bus, rik });
-                   graph[i].push({ dest: newIndex, time, bus, rik });
+          graph[i].push({ dest: newIndex, time, bus, rik });
         }
       }
-
-      // Refresh dropdowns and location display
       populateDropdowns();
       createNewConnectionInputs();
       document.getElementById("newLocationName").value = "";
       alert(`${name} added successfully!`);
     }
 
-    // Initial setup
     window.onload = () => {
       populateDropdowns();
       createNewConnectionInputs();
