@@ -298,7 +298,6 @@
       [{ dest: 0, time: 25, bus: 0, rik: 80 }, { dest: 1, time: 15, bus: 10, rik: 30 }, { dest: 3, time: 15, bus: 15, rik: 70 }]
     ];
 
-    // Graph network instance (global for redrawing)
     let networkInstance = null;
     let selectedNodeFor = "start"; // alternates between start and end
 
@@ -320,7 +319,7 @@
       });
     }
 
-    // Render interactive graph with node names (in black), improved layout
+    // Render interactive graph with node names (in black), improved layout, and edge label background via outline
     function renderGraph() {
       const nodes = places.map((place, i) => ({
         id: i,
@@ -345,10 +344,16 @@
               from, to: dest,
               label: `${time}m`,
               color: { color: '#26c6da' },
-              font: { align: "middle" },
+              font: {
+                align: "middle",
+                color: "#222",
+                size: 15,
+                strokeWidth: 4,     // Add outline to label
+                strokeColor: "#fff" // White outline for contrast
+              },
               smooth: {
                 enabled: true,
-                type: "curvedCCW", // Help avoid overlap
+                type: "curvedCCW",
                 roundness: 0.4
               }
             });
@@ -374,10 +379,16 @@
             enabled: true,
             type: "dynamic"
           },
-          font: { color: '#222', align: 'middle', size: 15 }
+          font: {
+            color: '#222',
+            align: 'middle',
+            size: 15,
+            strokeWidth: 4,
+            strokeColor: "#fff"
+          }
         },
         layout: {
-          improvedLayout: true, // Let vis-network optimize node positions and avoid overlap
+          improvedLayout: true,
           randomSeed: 42
         },
         physics: { enabled: true }
@@ -385,7 +396,6 @@
       networkInstance.on('click', function(params) {
         if (params.nodes.length === 1) {
           const idx = params.nodes[0];
-          // Alternate between start and end selection
           if (selectedNodeFor === "start") {
             document.getElementById('start').value = idx;
             selectedNodeFor = "end";
