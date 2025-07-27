@@ -1,3 +1,5 @@
 api : open street map . org
 collect coordinates from name input
 use coordinates to show in map  
+https://positionstack.com/documentation
+https://docs.mapbox.com/api/maps/static-images/
