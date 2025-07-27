@@ -1,0 +1,3 @@
+api : open street map . org
+collect coordinates from name input
+use coordinates to show in map  
