@@ -3,22 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Walkway Graph</title>
+  <title>Walkway Path Finder</title>
   <!-- vis-network for graph visualization -->
   <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   <link href="https://unpkg.com/vis-network/styles/vis-network.min.css" rel="stylesheet" />
-  <!-- Stylish Google Fonts for node labels -->
-  <link href="https://fonts.googleapis.com/css?family=Fira+Sans:400,700|Montserrat:400,700&display=swap" rel="stylesheet">
+  <!-- Google Fonts and Font Awesome -->
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Inter', 'Fira Sans', Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding: 20px;
       margin: 0;
+      padding-top: 76px;
       transition: background 0.5s ease, color 0.5s ease;
     }
     :root[data-theme='light'] {
@@ -28,6 +27,9 @@
       --glass-border: rgba(255, 255, 255, 0.4);
       --glass-shadow: rgba(0, 0, 0, 0.08);
       --highlight: #00acc1;
+      --btn: #00acc1;
+      --btn-hover: #008ba3;
+      --btn-text: #fff;
     }
     :root[data-theme='dark'] {
       --bg: linear-gradient(to right, #101a2b, #203a43, #2c5364);
@@ -36,83 +38,83 @@
       --glass-border: rgba(255, 255, 255, 0.18);
       --glass-shadow: rgba(0, 0, 0, 0.5);
       --highlight: #26c6da;
+      --btn: #26c6da;
+      --btn-hover: #00acc1;
+      --btn-text: #222;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
     .fade-in { animation: fadeIn 0.6s ease-in-out; }
-    .glass {
+    header {
+      position: fixed; top: 0; left: 0; right: 0;
       background: var(--glass-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 6px 14px var(--glass-shadow);
-      transition: all 0.4s ease;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 12px var(--glass-shadow);
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 36px 14px 26px;
+      border-bottom: 1px solid var(--glass-border);
     }
-    .title-glass {
-      padding: 12px 20px;
-      margin: 10px auto 30px;
-      max-width: fit-content;
-      border-radius: 16px;
-      text-align: center;
+    header h1 {
+      margin: 0; font-size: 1.45rem; font-weight: 700;
+      color: var(--highlight);
+      letter-spacing: 1px;
+      display: flex; align-items: center; gap: 9px;
     }
-    .title-glass h1 {
-      margin: 0;
-      font-size: 2rem;
-      font-weight: 600;
+    nav.nav-buttons {
+      display: flex; gap: 16px;
+    }
+    .nav-buttons button {
+      background: none;
+      border: none;
+      font-size: 1.07rem;
       color: var(--text);
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      padding: 7px 15px;
+      border-radius: 8px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .nav-buttons button:hover, .nav-buttons button:focus {
+      background: var(--highlight);
+      color: #fff;
+      outline: none;
     }
     .dark-toggle {
-      position: fixed;
-      top: 15px;
-      right: 20px;
-      background: var(--glass-bg);
-      padding: 10px 14px;
-      border-radius: 12px;
-      cursor: pointer;
-      color: var(--text);
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 4px 12px var(--glass-shadow);
-      z-index: 100;
-      transition: all 0.3s ease;
-    }
-    .dark-toggle:focus { outline: 2px solid var(--highlight); }
-    .dark-toggle:hover { transform: scale(1.08); background: var(--highlight); color: #fff; }
-    nav.nav-buttons {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .nav-buttons button,
-    button {
-      padding: 12px 20px;
-      margin: 8px;
+      font-size: 1.15rem;
+      background: none;
       border: none;
-      border-radius: 14px;
       color: var(--text);
-      font-weight: 600;
-      font-size: 1rem;
       cursor: pointer;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 4px 12px var(--glass-shadow);
-      transition: all 0.3s ease;
+      padding: 7px 12px;
+      border-radius: 50%;
+      transition: background 0.2s, color 0.2s;
+      margin-left: 10px;
     }
-    .nav-buttons button:focus,
-    button:focus { outline: 2px solid var(--highlight); }
-    .nav-buttons button:hover,
-    button:hover {
+    .dark-toggle:hover, .dark-toggle:focus {
       background: var(--highlight);
-      color: white;
-      transform: scale(1.06);
+      color: #fff;
+      outline: none;
     }
-    main .section {
-      border-radius: 20px;
-      padding: 30px;
-      margin: 30px auto;
-      max-width: 900px;
-      transition: all 0.4s ease;
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    section.section {
+      background: var(--glass-bg);
+      box-shadow: 0 2px 8px var(--glass-shadow);
+      border-radius: 18px;
+      padding: 28px 22px;
+      margin: 0 0 30px 0;
+      animation: fadeIn 0.7s;
+      transition: background 0.4s, box-shadow 0.4s;
       opacity: 0;
       animation: fadeIn 0.7s ease forwards;
     }
@@ -196,45 +198,65 @@
       border: 1px solid var(--glass-border);
       box-shadow: 0 2px 10px var(--glass-shadow);
     }
+    /* BUTTONS */
+    .modern-btn {
+      background: var(--btn);
+      color: var(--btn-text);
+      border: none;
+      border-radius: 8px;
+      padding: 10px 24px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 8px 6px 0 0;
+      box-shadow: 0 2px 7px rgba(0,0,0,0.06);
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, transform 0.15s;
+      outline: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .modern-btn:hover, .modern-btn:focus {
+      background: var(--btn-hover);
+      color: #fff;
+      transform: translateY(-2px) scale(1.03);
+    }
+    .modern-btn:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
     @media screen and (max-width: 600px) {
+      nav.nav-buttons { flex-direction: column; gap: 6px; }
       select, input[type="text"], input[type="number"], button {
         width: 100%;
         margin: 8px 0;
       }
-      .connection-row {
-        display: block;
-      }
-      main .section {
-        padding: 10px;
-      }
-      .location-grid {
-        grid-template-columns: 1fr;
-      }
-      .location-card {
-        max-width: none;
-        width: 100%;
-      }
-      #network {
-        height: 250px;
-      }
+      .connection-row { display: block; }
+      main .section { padding: 10px; }
+      .location-grid { grid-template-columns: 1fr; }
+      .location-card { max-width: none; width: 100%; }
+      #network { height: 250px; }
+      header { flex-direction: column; align-items: flex-start; padding: 12px 8px; }
     }
   </style>
 </head>
 <body>
-  <button class="dark-toggle glass" aria-label="Toggle dark mode" onclick="toggleTheme()">🌙 Change Mode</button>
-  <div class="title-glass glass">
-    <h1>🗺️ Walkway Path Finder</h1>
-  </div>
-  <nav class="nav-buttons" aria-label="Main navigation">
-    <button class="glass" onclick="scrollSection('section-graph')">🌐 View Map</button>
-    <button class="glass" onclick="scrollSection('section-locations')">📍 View Locations</button>
-    <button class="glass" onclick="scrollSection('section-findpath')">🧭 Find Path</button>
-    <button class="glass" onclick="scrollSection('section-addlocation')">➕ Add Location</button>
-  </nav>
+  <header>
+    <h1><i class="fa-solid fa-map-location-dot"></i> Walkway Path Finder</h1>
+    <nav class="nav-buttons" aria-label="Main navigation">
+      <button onclick="scrollSection('section-graph')"><i class="fa-solid fa-globe"></i> Map</button>
+      <button onclick="scrollSection('section-locations')"><i class="fa-solid fa-location-dot"></i> Locations</button>
+      <button onclick="scrollSection('section-findpath')"><i class="fa-solid fa-compass"></i> Find Path</button>
+      <button onclick="scrollSection('section-addlocation')"><i class="fa-solid fa-plus"></i> Add</button>
+    </nav>
+    <button class="dark-toggle" aria-label="Toggle dark mode" onclick="toggleTheme()">
+      <i class="fa-solid fa-circle-half-stroke"></i>
+    </button>
+  </header>
   <main>
-    <!-- Graph Visualization Section -->
-    <section id="section-graph" class="section glass" aria-labelledby="graph-title">
-      <h2 id="graph-title">🌐 Walkway Map</h2>
+    <!-- 1. Graph Visualization Section -->
+    <section id="section-graph" class="section" aria-labelledby="graph-title">
+      <h2 id="graph-title"><i class="fa-solid fa-globe"></i> Walkway Map</h2>
       <div id="network"></div>
       <div style="text-align:center; font-size:0.95em; opacity:0.8;">
         <span>🔘 Click a node to set as <b>start</b> or <b>end</b> for path finding.<br>
@@ -243,28 +265,32 @@
         </span>
       </div>
     </section>
-    <section id="section-locations" class="section glass" aria-labelledby="locations-title">
-      <h2 id="locations-title">📍 Available Locations</h2>
+    <!-- 2. Location List Section -->
+    <section id="section-locations" class="section" aria-labelledby="locations-title">
+      <h2 id="locations-title"><i class="fa-solid fa-location-dot"></i> Available Locations</h2>
       <div id="locationList" class="location-grid" role="list"></div>
     </section>
-    <section id="section-findpath" class="section glass" aria-labelledby="findpath-title">
-      <h2 id="findpath-title">🧭 Find Your Path</h2>
-      <form id="findPathForm" onsubmit="event.preventDefault(); findPaths();">
+    <!-- 3. Find Path Section -->
+    <section id="section-findpath" class="section" aria-labelledby="findpath-title">
+      <h2 id="findpath-title"><i class="fa-solid fa-compass"></i> Find Your Path</h2>
+      <form id="findPathForm" onsubmit="event.preventDefault(); findPaths();" autocomplete="off">
         <label for="start">Your Position:</label>
         <select id="start" aria-label="Start location"></select>
         <label for="end">Target Position:</label>
         <select id="end" aria-label="End location"></select>
-        <button type="submit">Find Paths</button>
+        <button type="submit" class="modern-btn"><i class="fa-solid fa-route"></i> Find Path</button>
       </form>
       <div id="output" class="fade-in" aria-live="polite"></div>
     </section>
-    <section id="section-addlocation" class="section glass" aria-labelledby="addlocation-title">
-      <h2 id="addlocation-title">➕ Add New Location</h2>
-      <form id="addLocationForm" onsubmit="event.preventDefault(); addNewLocation();">
+    <!-- 4. Add Location Section -->
+    <section id="section-addlocation" class="section" aria-labelledby="addlocation-title">
+      <h2 id="addlocation-title"><i class="fa-solid fa-plus"></i> Add New Location</h2>
+      <form id="addLocationForm" onsubmit="event.preventDefault(); addNewLocation();" autocomplete="off">
         <input type="text" id="newLocationName" placeholder="New Location Name" aria-label="New Location Name" required>
         <div id="newConnections"></div>
-        <button type="submit">Add Location</button>
+        <button type="submit" class="modern-btn"><i class="fa-solid fa-plus"></i> Add Location</button>
       </form>
+      <div id="addLocationMsg" style="margin-top:12px;"></div>
     </section>
   </main>
   <script>
@@ -315,11 +341,11 @@
       places.forEach((place, idx) => {
         start.innerHTML += `<option value="${idx}">${place}</option>`;
         end.innerHTML += `<option value="${idx}">${place}</option>`;
-        list.innerHTML += `<div class="location-card" role="listitem">📍 ${place}</div>`;
+        list.innerHTML += `<div class="location-card" role="listitem"><i class="fa-solid fa-location-dot"></i> ${place}</div>`;
       });
     }
 
-    // Render interactive graph with node names (in black), improved layout, and edge label background via outline
+    // Render interactive graph with node names
     function renderGraph() {
       const nodes = places.map((place, i) => ({
         id: i,
@@ -330,9 +356,9 @@
           highlight: { background: "#00acc1", border: "#222" }
         },
         font: {
-          color: "#111", // Black label color
+          color: "#111",
           size: 16,
-          face: "Fira Sans, Montserrat, Segoe UI, Verdana, sans-serif",
+          face: "Inter, Fira Sans, Montserrat, Segoe UI, Verdana, sans-serif",
           bold: true
         }
       }));
@@ -348,8 +374,8 @@
                 align: "middle",
                 color: "#222",
                 size: 15,
-                strokeWidth: 4,     // Add outline to label
-                strokeColor: "#fff" // White outline for contrast
+                strokeWidth: 4,
+                strokeColor: "#fff"
               },
               smooth: {
                 enabled: true,
@@ -375,10 +401,7 @@
         },
         edges: {
           width: 3,
-          smooth: {
-            enabled: true,
-            type: "dynamic"
-          },
+          smooth: { enabled: true, type: "dynamic" },
           font: {
             color: '#222',
             align: 'middle',
@@ -499,17 +522,20 @@
 
     function addNewLocation() {
       const name = document.getElementById("newLocationName").value.trim();
+      const msgDiv = document.getElementById("addLocationMsg");
+      msgDiv.innerHTML = "";
       if (!name) {
-        alert("Please enter a location name.");
+        msgDiv.innerHTML = '<span style="color:#c00;">Please enter a location name.</span>';
         return;
       }
       if (places.includes(name)) {
-        alert("Location already exists!");
+        msgDiv.innerHTML = '<span style="color:#c00;">Location already exists!</span>';
         return;
       }
       const newIndex = places.length;
       places.push(name);
       graph.push([]);
+      let hasConnection = false;
       for (let i = 0; i < newIndex; i++) {
         const time = parseInt(document.getElementById(`time_${i}`).value);
         const bus = parseInt(document.getElementById(`bus_${i}`).value);
@@ -517,13 +543,22 @@
         if (!isNaN(time) && !isNaN(bus) && !isNaN(rik) && (time > 0 || bus > 0 || rik > 0)) {
           graph[newIndex].push({ dest: i, time, bus, rik });
           graph[i].push({ dest: newIndex, time, bus, rik });
+          hasConnection = true;
         }
+      }
+      if (!hasConnection) {
+        // Remove the newly added location if no valid connections
+        places.pop();
+        graph.pop();
+        msgDiv.innerHTML = '<span style="color:#c00;">Add at least one connection with time and cost!</span>';
+        return;
       }
       populateDropdowns();
       createNewConnectionInputs();
       renderGraph();
       document.getElementById("newLocationName").value = "";
-      alert(`${name} added successfully!`);
+      msgDiv.innerHTML = `<span style="color:green;">${name} added successfully!</span>`;
+      setTimeout(() => { msgDiv.innerHTML = ""; }, 3000);
     }
 
     window.onload = () => {
