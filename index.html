@@ -78,6 +78,9 @@
       transition: background 0.2s, color 0.2s;
       display: flex; align-items: center; gap: 6px;
     }
+    .nav-buttons button span {
+      display: inline;
+    }
     .nav-buttons button:hover, .nav-buttons button:focus {
       background: var(--highlight);
       color: #fff;
@@ -332,18 +335,267 @@
       margin-right: 10px;
     }
 
-    @media screen and (max-width: 600px) {
-      nav.nav-buttons { flex-direction: column; gap: 6px; }
-      select, input[type="text"], input[type="number"], button {
+    @media screen and (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 12px;
+        gap: 8px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        gap: 6px;
+      }
+      nav.nav-buttons {
+        flex-direction: row;
+        gap: 8px;
+        flex-wrap: wrap;
         width: 100%;
+      }
+      .nav-buttons button {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+        flex: 1;
+        min-width: 70px;
+      }
+      .dark-toggle {
+        margin-left: 0;
+        align-self: flex-end;
+      }
+      body {
+        padding-top: 140px;
+      }
+      main {
+        max-width: 100%;
+        padding: 12px 8px;
+        gap: 16px;
+      }
+      section.section {
+        padding: 16px 12px;
+        margin: 0 0 16px 0;
+      }
+      .location-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 12px;
+        padding-top: 12px;
+      }
+      .location-card {
+        height: 60px;
+        min-width: 100px;
+        font-size: 0.9rem;
+        padding: 12px 8px;
+      }
+      .tabs-container {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .tab-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+        border: 2px solid var(--highlight);
+      }
+      .tab-content {
+        font-size: 0.95rem;
+      }
+      .tab-content h3 {
+        font-size: 1.3rem;
+        margin: 16px 0 12px 0;
+      }
+      .tab-content h4 {
+        font-size: 1.1rem;
+        margin: 12px 0 8px 0;
+      }
+      .tab-content ul, .tab-content ol {
+        padding-left: 20px;
+        margin: 10px 0;
+      }
+      .tab-content li {
+        margin: 6px 0;
+        font-size: 0.9rem;
+      }
+      .code-block {
+        font-size: 0.8rem;
+        padding: 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
         margin: 8px 0;
       }
-      .connection-row { display: block; }
-      main .section { padding: 10px; }
-      .location-grid { grid-template-columns: 1fr; }
-      .location-card { max-width: none; width: 100%; }
-      #network { height: 250px; }
-      header { flex-direction: column; align-items: flex-start; padding: 12px 8px; }
+      .algorithm-table {
+        font-size: 0.85rem;
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 12px 0;
+      }
+      .algorithm-table table {
+        min-width: 100%;
+      }
+      .algorithm-table th, .algorithm-table td {
+        padding: 8px;
+        font-size: 0.8rem;
+      }
+      .comparison-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin: 12px 0;
+      }
+      .algo-card {
+        padding: 12px;
+      }
+      .algo-card h4 {
+        font-size: 1rem;
+        margin: 8px 0 6px 0;
+      }
+      .learning-box, .complexity-box {
+        padding: 12px;
+        margin: 12px 0;
+      }
+      .learning-box strong, .complexity-box strong {
+        font-size: 0.95rem;
+      }
+      .learning-box ul, .complexity-box ul {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+      .learning-box li, .complexity-box li {
+        font-size: 0.9rem;
+        margin: 4px 0;
+      }
+      select, input[type="text"], input[type="number"] {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        font-size: 16px;
+        min-width: unset;
+        box-sizing: border-box;
+      }
+      label {
+        display: block;
+        margin: 12px 0 6px 0;
+        font-size: 0.95rem;
+      }
+      .modern-btn {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0 0 0;
+        font-size: 1rem;
+        justify-content: center;
+      }
+      .connection-row {
+        display: block;
+        margin: 12px 0;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 6px;
+      }
+      .connection-row label {
+        margin: 6px 0 3px 0;
+        font-size: 0.9rem;
+      }
+      .connection-row input {
+        width: 100%;
+        margin: 4px 0;
+      }
+      #network {
+        height: 250px;
+        margin-bottom: 16px;
+      }
+      #output {
+        margin-top: 16px;
+        padding: 12px;
+      }
+      .path-result {
+        padding: 12px;
+        margin-top: 12px;
+        font-size: 0.9rem;
+      }
+      .step-counter {
+        padding: 2px 8px;
+        font-size: 0.75rem;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      body {
+        padding-top: 160px;
+      }
+      header {
+        padding: 8px;
+      }
+      header h1 {
+        font-size: 1rem;
+      }
+      header h1 i {
+        font-size: 0.9rem;
+      }
+      nav.nav-buttons {
+        gap: 6px;
+      }
+      .nav-buttons button {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+      }
+      .nav-buttons button span {
+        display: none;
+      }
+      main {
+        padding: 8px;
+        gap: 12px;
+      }
+      section.section {
+        padding: 12px 10px;
+        margin: 0 0 12px 0;
+      }
+      h2 {
+        font-size: 1.2rem;
+        margin: 0 0 12px 0;
+      }
+      h3 {
+        font-size: 1.1rem;
+      }
+      .location-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      .location-card {
+        height: 50px;
+        font-size: 0.8rem;
+      }
+      .tabs-container {
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .tab-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+      }
+      .tab-content {
+        font-size: 0.9rem;
+      }
+      .code-block {
+        font-size: 0.75rem;
+        padding: 10px;
+      }
+      .algorithm-table {
+        font-size: 0.8rem;
+      }
+      .algorithm-table th, .algorithm-table td {
+        padding: 6px;
+      }
+      .algo-card {
+        padding: 10px;
+      }
+      .modern-btn {
+        font-size: 0.95rem;
+        padding: 10px;
+      }
     }
   </style>
 </head>
@@ -351,11 +603,11 @@
   <header>
     <h1><i class="fa-solid fa-map-location-dot"></i> Walkway Path Finder</h1>
     <nav class="nav-buttons" aria-label="Main navigation">
-      <button onclick="scrollSection('section-graph')"><i class="fa-solid fa-globe"></i> Map</button>
-      <button onclick="scrollSection('section-locations')"><i class="fa-solid fa-location-dot"></i> Locations</button>
-      <button onclick="scrollSection('section-findpath')"><i class="fa-solid fa-compass"></i> Find Path</button>
-      <button onclick="scrollSection('section-learn')"><i class="fa-solid fa-book"></i> Learn DSA</button>
-      <button onclick="scrollSection('section-addlocation')"><i class="fa-solid fa-plus"></i> Add</button>
+      <button onclick="scrollSection('section-graph')"><i class="fa-solid fa-globe"></i><span> Map</span></button>
+      <button onclick="scrollSection('section-locations')"><i class="fa-solid fa-location-dot"></i><span> Locations</span></button>
+      <button onclick="scrollSection('section-findpath')"><i class="fa-solid fa-compass"></i><span> Find Path</span></button>
+      <button onclick="scrollSection('section-learn')"><i class="fa-solid fa-book"></i><span> Learn DSA</span></button>
+      <button onclick="scrollSection('section-addlocation')"><i class="fa-solid fa-plus"></i><span> Add</span></button>
     </nav>
     <button class="dark-toggle" aria-label="Toggle dark mode" onclick="toggleTheme()">
       <i class="fa-solid fa-circle-half-stroke"></i>
@@ -381,12 +633,16 @@
     <!-- 3. Find Path Section -->
     <section id="section-findpath" class="section" aria-labelledby="findpath-title">
       <h2 id="findpath-title"><i class="fa-solid fa-compass"></i> Find Your Path</h2>
-      <form id="findPathForm" onsubmit="event.preventDefault(); findPaths();" autocomplete="off">
-        <label for="start">Your Position:</label>
-        <select id="start" aria-label="Start location"></select>
-        <label for="end">Target Position:</label>
-        <select id="end" aria-label="End location"></select>
-        <button type="submit" class="modern-btn"><i class="fa-solid fa-route"></i> Find Path</button>
+      <form id="findPathForm" onsubmit="event.preventDefault(); findPaths();" autocomplete="off" style="display: grid; gap: 10px;">
+        <div>
+          <label for="start">Your Position:</label>
+          <select id="start" aria-label="Start location"></select>
+        </div>
+        <div>
+          <label for="end">Target Position:</label>
+          <select id="end" aria-label="End location"></select>
+        </div>
+        <button type="submit" class="modern-btn"><i class="fa-solid fa-route"></i><span> Find Path</span></button>
       </form>
       <div id="output" class="fade-in" aria-live="polite"></div>
     </section>
@@ -672,10 +928,10 @@ if (dist[target] == INFINITY) {
     <!-- 4. Add Location Section -->
     <section id="section-addlocation" class="section" aria-labelledby="addlocation-title">
       <h2 id="addlocation-title"><i class="fa-solid fa-plus"></i> Add New Location</h2>
-      <form id="addLocationForm" onsubmit="event.preventDefault(); addNewLocation();" autocomplete="off">
+      <form id="addLocationForm" onsubmit="event.preventDefault(); addNewLocation();" autocomplete="off" style="display: grid; gap: 10px;">
         <input type="text" id="newLocationName" placeholder="New Location Name" aria-label="New Location Name" required>
         <div id="newConnections"></div>
-        <button type="submit" class="modern-btn"><i class="fa-solid fa-plus"></i> Add Location</button>
+        <button type="submit" class="modern-btn"><i class="fa-solid fa-plus"></i><span> Add Location</span></button>
       </form>
       <div id="addLocationMsg" style="margin-top:12px;"></div>
     </section>
